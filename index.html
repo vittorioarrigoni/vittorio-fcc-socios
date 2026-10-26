@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Ferrari Club Chile · Socios</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FCC Socios">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red:#e10600; --black:#0a0a0a; --dark:#131313; --card:#1a1a1a; --card2:#222;
+    --border:#2a2a2a; --text:#f2f2f2; --muted:#8a8a8a; --gold:#f5c518; --green:#22c55e;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  html, body { background:var(--black); color:var(--text); font-family:'Barlow',system-ui,sans-serif; }
+  body { min-height:100vh; padding-bottom:calc(76px + env(safe-area-inset-bottom)); }
+  a { color:inherit; }
+  .hidden { display:none !important; }
+  .cond { font-family:'Barlow Condensed',sans-serif; }
+
+  /* Login */
+  #login { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 24px;
+    background:radial-gradient(circle at 50% 0%, #3a0000 0%, var(--black) 60%); }
+  #login img { width:132px; height:132px; border-radius:50%; box-shadow:0 0 0 4px #ffffff10, 0 10px 40px #e1060044; margin-bottom:22px; }
+  #login h1 { font-family:'Barlow Condensed',sans-serif; font-size:30px; font-weight:900; letter-spacing:2px; text-align:center; }
+  #login h1 span { color:var(--red); }
+  #login .sub { color:var(--muted); font-size:13px; letter-spacing:3px; text-transform:uppercase; margin:6px 0 30px; }
+  .field { width:100%; max-width:340px; margin-bottom:12px; }
+  .field label { display:block; font-size:11px; letter-spacing:2px; color:var(--muted); margin-bottom:6px; text-transform:uppercase; }
+  .field input { width:100%; padding:14px; border-radius:10px; border:1px solid var(--border); background:var(--card); color:var(--text); font-size:16px; }
+  .field input:focus { outline:none; border-color:var(--red); }
+  .btn { width:100%; max-width:340px; padding:15px; border:none; border-radius:10px; background:var(--red); color:#fff;
+    font-family:'Barlow Condensed',sans-serif; font-size:19px; font-weight:700; letter-spacing:2px; cursor:pointer; }
+  .btn:disabled { opacity:.6; }
+  .err { color:#ff6b6b; font-size:14px; min-height:20px; margin:10px 0 0; text-align:center; max-width:340px; }
+  .demo-tag { margin-top:22px; font-size:12px; color:var(--muted); text-align:center; }
+
+  /* Header */
+  header { position:sticky; top:0; z-index:20; background:rgba(19,19,19,.96); backdrop-filter:blur(8px);
+    border-bottom:3px solid var(--red); padding:calc(10px + env(safe-area-inset-top)) 16px 10px; display:flex; align-items:center; gap:12px; }
+  header img { width:38px; height:38px; border-radius:50%; }
+  header .t { flex:1; line-height:1.1; }
+  header .t b { font-family:'Barlow Condensed',sans-serif; font-size:19px; font-weight:900; letter-spacing:1.5px; display:block; }
+  header .t b span { color:var(--red); }
+  header .t small { color:var(--muted); font-size:12px; }
+  .icon-btn { background:var(--card); border:1px solid var(--border); color:var(--text); border-radius:50%; width:38px; height:38px; font-size:17px; cursor:pointer; }
+
+  main { padding:16px; max-width:720px; margin:0 auto; }
+  h2.sec { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:900; letter-spacing:1.5px; text-transform:uppercase; margin:6px 0 12px; display:flex; align-items:center; gap:8px; }
+  h2.sec::before { content:''; width:4px; height:20px; background:var(--red); border-radius:2px; }
+  .hello { background:linear-gradient(120deg,#2a0000,#1a1a1a 70%); border:1px solid #e1060040; border-radius:14px; padding:18px; margin-bottom:20px; }
+  .hello .h { font-family:'Barlow Condensed',sans-serif; font-size:24px; font-weight:900; }
+  .hello .s { color:#c9c9c9; font-size:13px; margin-top:4px; letter-spacing:1px; }
+
+  .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:10px; }
+  .muted { color:var(--muted); }
+  .small { font-size:12px; }
+  .chip { display:inline-block; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:600; letter-spacing:.5px; background:var(--card2); color:#ccc; border:1px solid var(--border); }
+  .chip.red { background:#e1060022; color:#ff5a52; border-color:#e1060055; }
+  .chip.gold { background:#f5c51822; color:var(--gold); border-color:#f5c51855; }
+
+  /* Eventos */
+  .ev { display:flex; gap:14px; cursor:pointer; }
+  .ev-date { flex-shrink:0; width:56px; text-align:center; background:var(--card2); border-radius:10px; padding:8px 0; border:1px solid var(--border); }
+  .ev-date .d { font-family:'Barlow Condensed',sans-serif; font-size:26px; font-weight:900; line-height:1; }
+  .ev-date .m { font-size:11px; letter-spacing:1px; color:var(--red); font-weight:600; text-transform:uppercase; }
+  .ev-date .y { font-size:10px; color:var(--muted); }
+  .ev h3 { font-size:16px; font-weight:600; margin-bottom:3px; }
+  .ev .more { display:none; margin-top:10px; font-size:14px; color:#d4d4d4; line-height:1.55; white-space:pre-line; }
+  .ev.open .more { display:block; }
+  .photos { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:10px; }
+  .photos img { width:100%; aspect-ratio:1; object-fit:cover; border-radius:8px; background:#222; }
+  .link-btn { display:inline-block; margin-top:10px; padding:9px 14px; border-radius:8px; background:var(--red); color:#fff; text-decoration:none; font-weight:600; font-size:14px; }
+  .seg { display:flex; gap:6px; margin-bottom:14px; }
+  .seg button { flex:1; padding:10px; border-radius:9px; border:1px solid var(--border); background:var(--card); color:var(--muted);
+    font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; letter-spacing:1px; cursor:pointer; }
+  .seg button.on { background:var(--red); border-color:var(--red); color:#fff; }
+
+  /* Convenios */
+  .chips { display:flex; gap:6px; overflow-x:auto; padding-bottom:6px; margin-bottom:10px; scrollbar-width:none; }
+  .chips button { flex-shrink:0; padding:7px 13px; border-radius:20px; border:1px solid var(--border); background:var(--card); color:#ccc; font-size:13px; cursor:pointer; }
+  .chips button.on { background:var(--text); color:#000; border-color:var(--text); }
+  .cv { display:flex; gap:12px; }
+  .cv .ic { width:46px; height:46px; flex-shrink:0; border-radius:12px; background:var(--card2); display:flex; align-items:center; justify-content:center; font-size:24px; border:1px solid var(--border); }
+  .cv h3 { font-size:16px; font-weight:600; }
+  .cv .ben { color:var(--gold); font-weight:600; font-size:14px; margin:3px 0; }
+  .cv .desc { font-size:13px; color:#cfcfcf; line-height:1.5; }
+  .code { display:inline-flex; align-items:center; gap:8px; margin-top:8px; padding:6px 10px; border:1px dashed #f5c51888; border-radius:8px; font-family:monospace; font-size:15px; letter-spacing:1px; cursor:pointer; }
+
+  /* Socios */
+  .search { width:100%; padding:12px 14px; border-radius:10px; border:1px solid var(--border); background:var(--card); color:var(--text); font-size:15px; margin-bottom:12px; }
+  .so { display:flex; align-items:center; gap:12px; }
+  .av { width:48px; height:48px; border-radius:50%; flex-shrink:0; background:linear-gradient(135deg,#e10600,#7a0300); display:flex; align-items:center; justify-content:center;
+    font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:18px; overflow:hidden; }
+  .av img { width:100%; height:100%; object-fit:cover; }
+  .so .n { font-weight:600; font-size:15px; }
+  .so .acts { display:flex; gap:6px; margin-left:auto; }
+  .so .acts a { width:36px; height:36px; border-radius:50%; background:var(--card2); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; text-decoration:none; font-size:16px; }
+
+  /* Galería */
+  .gal { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .al { position:relative; border-radius:12px; overflow:hidden; aspect-ratio:4/3; background:linear-gradient(135deg,#2a0000,#151515); border:1px solid var(--border); text-decoration:none; display:block; }
+  .al img { width:100%; height:100%; object-fit:cover; }
+  .al .cap { position:absolute; left:0; right:0; bottom:0; padding:22px 10px 8px; background:linear-gradient(transparent,#000d); }
+  .al .cap b { font-size:14px; display:block; }
+  .al .ph { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:36px; opacity:.5; }
+
+  /* Avisos */
+  .av-item h3 { font-size:15px; font-weight:600; margin:2px 0 4px; }
+  .av-item p { font-size:14px; color:#d0d0d0; line-height:1.5; white-space:pre-line; }
+
+  /* Tab bar */
+  nav.tabs { position:fixed; left:0; right:0; bottom:0; z-index:30; background:rgba(19,19,19,.97); backdrop-filter:blur(8px); border-top:1px solid var(--border);
+    display:flex; padding:6px 4px calc(6px + env(safe-area-inset-bottom)); }
+  nav.tabs button { flex:1; background:none; border:none; color:var(--muted); display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 0; cursor:pointer; font-size:11px; font-family:inherit; }
+  nav.tabs button .i { font-size:21px; filter:grayscale(1); opacity:.7; }
+  nav.tabs button.on { color:#fff; }
+  nav.tabs button.on .i { filter:none; opacity:1; }
+  nav.tabs button.on::after { content:''; width:18px; height:3px; border-radius:2px; background:var(--red); margin-top:2px; }
+
+  .empty { text-align:center; color:var(--muted); padding:30px 10px; font-size:14px; }
+  .upd { text-align:center; font-size:11px; color:var(--muted); margin:14px 0 4px; }
+  .toast { position:fixed; left:50%; bottom:96px; transform:translateX(-50%); background:#fff; color:#000; padding:10px 16px; border-radius:20px; font-size:14px; font-weight:600; z-index:50; opacity:0; transition:opacity .2s; pointer-events:none; }
+  .toast.show { opacity:1; }
+  .menu { position:fixed; inset:0; background:#000a; z-index:40; display:flex; align-items:flex-end; }
+  .menu .sheet { width:100%; background:var(--dark); border-top:3px solid var(--red); border-radius:16px 16px 0 0; padding:20px 16px calc(20px + env(safe-area-inset-bottom)); }
+  .menu .sheet button { width:100%; text-align:left; padding:14px; margin-bottom:8px; background:var(--card); border:1px solid var(--border); color:var(--text); border-radius:10px; font-size:15px; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<section id="login" class="hidden">
+  <img src="icon-512.png" alt="Ferrari Club Chile">
+  <h1>FERRARI <span>CLUB</span> CHILE</h1>
+  <div class="sub">Área exclusiva socios</div>
+  <form id="login-form" style="width:100%;display:flex;flex-direction:column;align-items:center" onsubmit="doLogin(event)">
+    <div class="field"><label for="u">Usuario</label><input id="u" autocomplete="username" autocapitalize="none" spellcheck="false" required></div>
+    <div class="field"><label for="p">Clave</label><input id="p" type="password" autocomplete="current-password" required></div>
+    <button class="btn" id="btn-login" type="submit" style="margin-top:8px">INGRESAR</button>
+    <div class="err" id="login-err"></div>
+  </form>
+  <div class="demo-tag hidden" id="demo-tag">Modo demostración · usuario <b>demo</b> · clave <b>demo</b></div>
+</section>
+
+<!-- ══ APP ══ -->
+<div id="app" class="hidden">
+  <header>
+    <img src="icon-192.png" alt="">
+    <div class="t"><b>FERRARI <span>CLUB</span> CHILE</b><small id="who"></small></div>
+    <button class="icon-btn" onclick="openMenu()" aria-label="Menú">☰</button>
+  </header>
+  <main id="view"></main>
+  <nav class="tabs">
+    <button data-t="inicio" onclick="go('inicio')"><span class="i">🏠</span>Inicio</button>
+    <button data-t="eventos" onclick="go('eventos')"><span class="i">🏁</span>Eventos</button>
+    <button data-t="convenios" onclick="go('convenios')"><span class="i">🎁</span>Convenios</button>
+    <button data-t="socios" onclick="go('socios')"><span class="i">👥</span>Socios</button>
+    <button data-t="galeria" onclick="go('galeria')"><span class="i">📸</span>Galería</button>
+  </nav>
+</div>
+
+<div class="menu hidden" id="menu" onclick="if(event.target===this)closeMenu()">
+  <div class="sheet">
+    <button onclick="closeMenu();refresh(true)">🔄 Actualizar información</button>
+    <button id="install-btn" class="hidden" onclick="closeMenu();installApp()">📲 Instalar en la pantalla de inicio</button>
+    <button onclick="closeMenu();logout()">🚪 Cerrar sesión</button>
+    <button onclick="closeMenu()" style="text-align:center;background:none">Cancelar</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONFIGURACIÓN: pega aquí la URL del Apps Script (termina en /exec).
+// Si queda vacía, la app funciona en MODO DEMOSTRACIÓN con datos de ejemplo.
+// ═══════════════════════════════════════════════════════════
+const SCRIPT_URL = '';
+
+const DEMO = !SCRIPT_URL;
+const K_TOKEN = 'fccs_token', K_CACHE = 'fccs_cache', K_NAME = 'fccs_name';
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch(e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch(e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch(e) {} }
+};
+let DATA = null, TAB = 'inicio', EVSEG = 'prox', CVCAT = 'Todos';
+
+const esc = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MESES = ['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
+function fmtFecha(f, largo) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(f || '')) return esc(f || '');
+  const [y, m, d] = f.split('-').map(Number);
+  return largo ? new Date(y, m - 1, d).toLocaleDateString('es-CL', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
+               : `${d} ${MESES[m - 1].toLowerCase()} ${y}`;
+}
+// Enlaces de Google Drive → imagen visible
+function img(url) {
+  const u = String(url || '').trim();
+  const m = u.match(/drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?(?:export=\w+&)?id=)([\w-]{20,})/);
+  return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w1200` : u;
+}
+const safeUrl = u => /^(https?:|mailto:|tel:)/i.test(u) ? u : '';
+function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 1800); }
+
+// ── Comunicación con el Apps Script (JSONP) ──
+function api(params) {
+  return new Promise(resolve => {
+    const cb = 'fccs_' + Date.now() + Math.floor(Math.random() * 1000);
+    const sc = document.createElement('script');
+    let done = false;
+    const fin = v => { if (done) return; done = true; delete window[cb]; sc.remove(); resolve(v); };
+    window[cb] = fin;
+    sc.src = SCRIPT_URL + '?' + new URLSearchParams({ ...params, callback: cb, _: Date.now() });
+    sc.onerror = () => fin(null);
+    document.head.appendChild(sc);
+    setTimeout(() => fin(null), 20000);
+  });
+}
+
+// ── Login / sesión ──
+async function doLogin(ev) {
+  ev.preventDefault();
+  const u = document.getElementById('u').value.trim(), p = document.getElementById('p').value;
+  const err = document.getElementById('login-err'), btn = document.getElementById('btn-login');
+  err.textContent = ''; btn.disabled = true; btn.textContent = 'INGRESANDO...';
+  let r;
+  if (DEMO) r = (u.toLowerCase() === 'demo' && p === 'demo') ? { ok:true, token:'demo.demo', nombre:'Socio de Prueba' } : { ok:false, error:'Usuario o clave incorrectos.' };
+  else r = await api({ action:'login', usuario:u, clave:p });
+  btn.disabled = false; btn.textContent = 'INGRESAR';
+  if (!r) { err.textContent = 'Sin conexión. Intenta de nuevo.'; return; }
+  if (!r.ok) { err.textContent = r.error || 'No se pudo ingresar.'; return; }
+  store.set(K_TOKEN, r.token); store.set(K_NAME, r.nombre || '');
+  document.getElementById('p').value = '';
+  showApp(); refresh(true);
+}
+function logout() {
+  store.del(K_TOKEN); store.del(K_CACHE); store.del(K_NAME); DATA = null;
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('login').classList.remove('hidden');
+}
+function showApp() {
+  document.getElementById('login').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('who').textContent = store.get(K_NAME) || '';
+}
+async function refresh(showMsg) {
+  const token = store.get(K_TOKEN);
+  if (!token) return logout();
+  const r = DEMO ? demoData() : await api({ action:'datos', token });
+  if (!r) { if (showMsg) toast('Sin conexión: mostrando lo último guardado'); return; }
+  if (!r.ok) { if (r.error === 'sesion') { logout(); document.getElementById('login-err').textContent = 'Tu sesión expiró o tu clave cambió. Ingresa de nuevo.'; } return; }
+  DATA = r; store.set(K_CACHE, JSON.stringify(r));
+  document.getElementById('who').textContent = r.yo ? `${r.yo.nombre} · ${r.yo.cargo}` : '';
+  render();
+  if (showMsg === true && !DEMO) toast('Información actualizada');
+}
+
+// ── Navegación ──
+function go(t) { TAB = t; render(); window.scrollTo(0, 0); }
+function openMenu() { document.getElementById('menu').classList.remove('hidden'); }
+function closeMenu() { document.getElementById('menu').classList.add('hidden'); }
+
+function render() {
+  document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === TAB));
+  const v = document.getElementById('view');
+  if (!DATA) { v.innerHTML = '<div class="empty">⏳ Cargando...</div>'; return; }
+  v.innerHTML = ({ inicio:vInicio, eventos:vEventos, convenios:vConvenios, socios:vSocios, galeria:vGaleria }[TAB])() +
+    `<div class="upd">Actualizado ${new Date(DATA.actualizado).toLocaleString('es-CL', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit', hourCycle:'h23' })}${DEMO ? ' · DEMO' : ''}</div>`;
+}
+
+function evCard(e) {
+  const [y, m, d] = (e.fecha || '').split('-');
+  const fotos = (e.fotos || []).map(f => `<img loading="lazy" src="${esc(img(f))}" alt="">`).join('');
+  return `<div class="card ev" onclick="this.classList.toggle('open')">
+    <div class="ev-date"><div class="d">${d ? Number(d) : '?'}</div><div class="m">${m ? MESES[Number(m) - 1] : ''}</div><div class="y">${y || ''}</div></div>
+    <div style="flex:1;min-width:0">
+      <h3>${esc(e.nombre)}</h3>
+      <div class="muted small">${e.hora ? '🕘 ' + esc(e.hora) + ' · ' : ''}${e.lugar ? '📍 ' + esc(e.lugar) : ''}</div>
+      <div class="more">${esc(e.desc)}${fotos ? `<div class="photos">${fotos}</div>` : ''}
+        ${safeUrl(e.inscripcion) ? `<a class="link-btn" href="${esc(e.inscripcion)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">✍️ Inscribirme</a>` : ''}</div>
+    </div></div>`;
+}
+
+function vInicio() {
+  const prox = DATA.eventos.filter(e => e.proximo).sort((a, b) => a.fecha.localeCompare(b.fecha)).slice(0, 2);
+  const avisos = DATA.avisos.slice(0, 5);
+  const nombre = (DATA.yo && DATA.yo.nombre || '').split(' ')[0];
+  return `<div class="hello"><div class="h">¡Hola, ${esc(nombre)}! 🐎</div><div class="s">${esc(DATA.config['Bienvenida'] || 'Pasión · Aventura · Camaradería')}</div></div>
+    <h2 class="sec">Próximos eventos</h2>
+    ${prox.length ? prox.map(evCard).join('') : '<div class="card muted small">No hay eventos próximos publicados.</div>'}
+    <h2 class="sec" style="margin-top:20px">Avisos</h2>
+    ${avisos.length ? avisos.map(a => `<div class="card av-item"><span class="chip">${fmtFecha(a.fecha)}</span><h3>${esc(a.titulo)}</h3><p>${esc(a.texto)}</p></div>`).join('') : '<div class="card muted small">Sin avisos.</div>'}
+    ${DATA.config['Contacto directiva'] ? `<div class="card small muted" style="margin-top:16px">✉️ Directiva: <a href="mailto:${esc(DATA.config['Contacto directiva'])}">${esc(DATA.config['Contacto directiva'])}</a></div>` : ''}`;
+}
+
+function vEventos() {
+  const prox = DATA.eventos.filter(e => e.proximo).sort((a, b) => a.fecha.localeCompare(b.fecha));
+  const pas = DATA.eventos.filter(e => !e.proximo).sort((a, b) => b.fecha.localeCompare(a.fecha));
+  const list = EVSEG === 'prox' ? prox : pas;
+  return `<h2 class="sec">Eventos</h2>
+    <div class="seg"><button class="${EVSEG==='prox'?'on':''}" onclick="EVSEG='prox';render()">PRÓXIMOS (${prox.length})</button>
+    <button class="${EVSEG==='pas'?'on':''}" onclick="EVSEG='pas';render()">PASADOS (${pas.length})</button></div>
+    ${list.length ? list.map(evCard).join('') : '<div class="empty">No hay eventos.</div>'}
+    <div class="muted small" style="text-align:center">Toca un evento para ver el detalle.</div>`;
+}
+
+function vConvenios() {
+  const cats = ['Todos', ...Array.from(new Set(DATA.convenios.map(c => c.cat)))];
+  if (!cats.includes(CVCAT)) CVCAT = 'Todos';
+  const list = DATA.convenios.filter(c => CVCAT === 'Todos' || c.cat === CVCAT);
+  return `<h2 class="sec">Beneficios exclusivos</h2>
+    <div class="chips">${cats.map(c => `<button class="${c===CVCAT?'on':''}" onclick="CVCAT=${esc(JSON.stringify(c))};render()">${esc(c)}</button>`).join('')}</div>
+    ${list.length ? list.map(c => {
+      const ct = c.contacto;
+      const link = /^https?:/i.test(ct) ? `<a class="link-btn" href="${esc(ct)}" target="_blank" rel="noopener">Ver más</a>`
+        : /^\+?[\d\s()-]{7,}$/.test(ct) ? `<a class="link-btn" href="tel:${esc(ct.replace(/[^\d+]/g,''))}">📞 Llamar</a>`
+        : /@/.test(ct) ? `<a class="link-btn" href="mailto:${esc(ct)}">✉️ Escribir</a>` : (ct ? `<div class="small muted" style="margin-top:6px">${esc(ct)}</div>` : '');
+      return `<div class="card cv"><div class="ic">${esc(c.icono || '🎁')}</div><div style="flex:1;min-width:0">
+        <span class="chip">${esc(c.cat)}</span><h3 style="margin-top:6px">${esc(c.nombre)}</h3>
+        <div class="ben">${esc(c.beneficio)}</div><div class="desc">${esc(c.desc)}</div>
+        ${c.codigo ? `<div class="code" onclick="copy(${esc(JSON.stringify(c.codigo))})">🏷️ ${esc(c.codigo)} <span class="small muted">copiar</span></div>` : ''}
+        ${c.hasta ? `<div class="small muted" style="margin-top:6px">Vigente hasta ${fmtFecha(c.hasta)}</div>` : ''}${link}</div></div>`;
+    }).join('') : '<div class="empty">No hay convenios en esta categoría.</div>'}`;
+}
+function copy(t) { (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast('Código copiado'), () => toast(t)); }
+
+function vSocios() {
+  return `<h2 class="sec">Directorio de socios</h2>
+    <input class="search" placeholder="🔎 Buscar por nombre o modelo" oninput="filterSocios(this.value)" id="q">
+    <div class="muted small" style="margin:-4px 0 10px">${DATA.socios.length} socios activos</div>
+    <div id="socios-list">${sociosHtml(DATA.socios)}</div>`;
+}
+function sociosHtml(list) {
+  if (!list.length) return '<div class="empty">Sin resultados.</div>';
+  return list.map(s => {
+    const ini = s.nombre.split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    const cargoCls = /presidente/i.test(s.cargo) ? 'gold' : /directiv/i.test(s.cargo) ? 'red' : '';
+    return `<div class="card so"><div class="av">${s.foto ? `<img loading="lazy" src="${esc(img(s.foto))}" alt="">` : esc(ini)}</div>
+      <div style="min-width:0"><div class="n">${esc(s.nombre)}</div>
+      <div class="small muted">${s.modelo ? '🐎 ' + esc(s.modelo) : ''}${s.desde ? ' · desde ' + esc(s.desde) : ''}</div>
+      ${s.cargo && s.cargo !== 'Socio' ? `<span class="chip ${cargoCls}" style="margin-top:4px">${esc(s.cargo)}</span>` : ''}</div>
+      <div class="acts">${s.tel ? `<a href="https://wa.me/${esc(s.tel.replace(/[^\d]/g,''))}" target="_blank" rel="noopener" title="WhatsApp">💬</a>` : ''}${s.email ? `<a href="mailto:${esc(s.email)}" title="Email">✉️</a>` : ''}</div></div>`;
+  }).join('');
+}
+function filterSocios(q) {
+  const n = t => t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  const k = n(q.trim());
+  document.getElementById('socios-list').innerHTML = sociosHtml(DATA.socios.filter(s => !k || n(s.nombre + ' ' + s.modelo + ' ' + s.cargo).includes(k)));
+}
+
+function vGaleria() {
+  return `<h2 class="sec">Galería privada</h2>
+    ${DATA.galeria.length ? `<div class="gal">${DATA.galeria.map(g => `<a class="al" href="${esc(safeUrl(g.enlace) || '#')}" target="_blank" rel="noopener">
+      ${g.portada ? `<img loading="lazy" src="${esc(img(g.portada))}" alt="">` : '<div class="ph">📸</div>'}
+      <div class="cap"><b>${esc(g.album)}</b><span class="small muted">${fmtFecha(g.fecha)}</span></div></a>`).join('')}</div>` : '<div class="empty">Aún no hay álbumes.</div>'}`;
+}
+
+// ── Instalación ──
+let deferredInstall = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstall = e; document.getElementById('install-btn').classList.remove('hidden'); });
+async function installApp() { if (deferredInstall) { deferredInstall.prompt(); deferredInstall = null; } }
+if (/iPhone|iPad|iPod/i.test(navigator.userAgent) && !navigator.standalone) {
+  const b = document.getElementById('install-btn'); b.classList.remove('hidden');
+  b.onclick = () => { closeMenu(); alert('En Safari: toca Compartir (cuadrado con flecha ↑) y luego "Agregar a inicio".'); };
+}
+
+// ── Datos de demostración ──
+function demoData() {
+  const y = new Date().getFullYear(), pad = n => String(n).padStart(2, '0');
+  const dd = (o) => { const d = new Date(); d.setDate(d.getDate() + o); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+  const nombres = [['Socio de Prueba','Socio','Ferrari 296 GTB',2024,'+56912345678','socio@ejemplo.cl'],['Carla Muñoz','Presidente','Ferrari 812 Superfast',2008],['Andrés Pérez','Directivo','Ferrari F8 Tributo',2012],['Bernardo Silva','Socio','Ferrari 488 GTB',2016,'+56987654321'],['Daniela Rojas','Socio','Ferrari Roma',2019],['Eduardo Tapia','Socio','Ferrari 458 Italia',2010],['Felipe Vargas','Directivo','Ferrari SF90 Stradale',2014],['Gonzalo Herrera','Socio Honorario','Ferrari 308 GTS',2004],['Ignacio Lagos','Socio','Ferrari Portofino M',2021]];
+  return { ok:true, actualizado:new Date().toISOString(), yo:{ nombre:'Socio de Prueba', cargo:'Socio' },
+    config:{ 'Bienvenida':'Pasión · Aventura · Camaradería', 'Contacto directiva':'contacto@ejemplo.cl' },
+    eventos:[
+      { fecha:dd(20), hora:'09:00', nombre:'Rally de Primavera', lugar:'Valle de Casablanca', desc:'Ruta por el valle con almuerzo en viña.\nPunto de encuentro: estación de servicio a la salida de Santiago.', inscripcion:'https://forms.google.com/', fotos:[], proximo:true },
+      { fecha:dd(48), hora:'11:00', nombre:'Track Day del Club', lugar:'Autódromo', desc:'Jornada en pista con instructores y asado de camaradería.', inscripcion:'', fotos:[], proximo:true },
+      { fecha:dd(-35), hora:'10:00', nombre:'Cena Aniversario', lugar:'Santiago', desc:'Celebración de los 22 años del club.', inscripcion:'', fotos:[], proximo:false } ],
+    convenios:[
+      { cat:'Automotriz', icono:'🔧', nombre:'Taller de ejemplo', beneficio:'15% de descuento en mantención', desc:'Presentar la app al llegar. Válido para socios activos.', codigo:'FCC15', hasta:`${y}-12-31`, contacto:'https://ejemplo.cl' },
+      { cat:'Automotriz', icono:'🧽', nombre:'Detailing de ejemplo', beneficio:'Lavado premium 2x1', desc:'Agendar con 48 h de anticipación.', codigo:'', hasta:'', contacto:'+56 2 2345 6789' },
+      { cat:'Gastronomía', icono:'🍝', nombre:'Restaurante de ejemplo', beneficio:'Copa de bienvenida', desc:'Reservar mencionando Ferrari Club Chile.', codigo:'', hasta:'', contacto:'reservas@ejemplo.cl' },
+      { cat:'Viajes', icono:'✈️', nombre:'Agencia de ejemplo', beneficio:'10% en paquetes a Maranello', desc:'Incluye visita al Museo Ferrari.', codigo:'MARANELLO10', hasta:'', contacto:'' } ],
+    socios:nombres.map(n => ({ nombre:n[0], cargo:n[1], modelo:n[2], desde:String(n[3]), foto:'', tel:n[4]||'', email:n[5]||'' })).sort((a,b)=>a.nombre.localeCompare(b.nombre,'es')),
+    avisos:[
+      { fecha:dd(-1), titulo:'Bienvenidos a la App de Socios', texto:'Aquí encontrarán eventos, convenios y avisos del club. Instálenla en su celular para tenerla siempre a mano.' },
+      { fecha:dd(-10), titulo:'Cuotas sociales', texto:'Recordamos que la cuota anual vence el 30 de noviembre.' } ],
+    galeria:[ { album:'Cena Aniversario', fecha:dd(-35), portada:'', enlace:'https://photos.google.com/' }, { album:'Rally de Otoño', fecha:dd(-160), portada:'', enlace:'https://photos.google.com/' } ] };
+}
+
+// ── Inicio ──
+(function init() {
+  if (DEMO) document.getElementById('demo-tag').classList.remove('hidden');
+  if (!store.get(K_TOKEN)) { document.getElementById('login').classList.remove('hidden'); return; }
+  showApp();
+  const c = store.get(K_CACHE);
+  if (c) { try { DATA = JSON.parse(c); } catch(e) {} }
+  render();
+  refresh(false);
+})();
+</script>
+</body>
+</html>
