@@ -141,13 +141,26 @@
   <img src="icon-512.png" alt="Ferrari Club Chile">
   <h1>FERRARI <span>CLUB</span> CHILE</h1>
   <div class="sub">Área exclusiva socios</div>
+  <!-- iPhone/iPad sin instalar: primero instalar -->
+  <div id="ios-gate" class="hidden" style="width:100%;max-width:340px">
+    <div class="card" style="line-height:1.6;font-size:15px">
+      <b style="font-size:17px">📲 Primero instala la app</b><br><br>
+      1. Toca el botón <b>Compartir</b> <span style="font-size:18px">⬆️</span> (cuadrado con flecha, abajo o arriba de Safari).<br>
+      2. Elige <b>Agregar a inicio</b> y luego <b>Agregar</b>.<br>
+      3. Cierra Safari y abre la app desde el nuevo ícono <b>FCC Socios</b>.<br>
+      4. Ahí ingresa tu código de activación.
+      <div class="small muted" style="margin-top:10px">Si activas tu código aquí en Safari, la app instalada no quedará conectada y tendrías que pedir otro código.</div>
+    </div>
+    <div style="text-align:center;margin-top:14px"><a href="#" class="small muted" onclick="showLoginForm(true);return false">Continuar sin instalar</a></div>
+  </div>
   <form id="login-form" style="width:100%;display:flex;flex-direction:column;align-items:center" onsubmit="doLogin(event)">
-    <div class="field"><label for="u">Usuario</label><input id="u" autocomplete="username" autocapitalize="none" spellcheck="false" required></div>
-    <div class="field"><label for="p">Clave</label><input id="p" type="password" autocomplete="current-password" required></div>
-    <button class="btn" id="btn-login" type="submit" style="margin-top:8px">INGRESAR</button>
+    <div class="field"><label for="c">Código de activación</label>
+      <input id="c" autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" placeholder="FCC-XXXX-XXXX" required style="text-transform:uppercase;letter-spacing:2px;text-align:center;font-size:19px"></div>
+    <button class="btn" id="btn-login" type="submit" style="margin-top:8px">ACTIVAR</button>
     <div class="err" id="login-err"></div>
+    <div class="small muted" style="text-align:center;max-width:320px;margin-top:14px;line-height:1.5">El código lo entrega la directiva del club. Sirve una sola vez y deja este dispositivo conectado.</div>
   </form>
-  <div class="demo-tag hidden" id="demo-tag">Modo demostración · usuario <b>demo</b> · clave <b>demo</b></div>
+  <div class="demo-tag hidden" id="demo-tag">Modo demostración · código <b>DEMO</b></div>
 </section>
 
 <!-- ══ APP ══ -->
@@ -171,7 +184,7 @@
   <div class="sheet">
     <button onclick="closeMenu();refresh(true)">🔄 Actualizar información</button>
     <button id="install-btn" class="hidden" onclick="closeMenu();installApp()">📲 Instalar en la pantalla de inicio</button>
-    <button onclick="closeMenu();logout()">🚪 Cerrar sesión</button>
+    <button onclick="closeMenu();logout()">📵 Desconectar este dispositivo</button>
     <button onclick="closeMenu()" style="text-align:center;background:none">Cancelar</button>
   </div>
 </div>
@@ -226,25 +239,42 @@ function api(params) {
 }
 
 // ── Login / sesión ──
-async function doLogin(ev) {
-  ev.preventDefault();
-  const u = document.getElementById('u').value.trim(), p = document.getElementById('p').value;
-  const err = document.getElementById('login-err'), btn = document.getElementById('btn-login');
-  err.textContent = ''; btn.disabled = true; btn.textContent = 'INGRESANDO...';
-  let r;
-  if (DEMO) r = (u.toLowerCase() === 'demo' && p === 'demo') ? { ok:true, token:'demo.demo', nombre:'Socio de Prueba' } : { ok:false, error:'Usuario o clave incorrectos.' };
-  else r = await api({ action:'login', usuario:u, clave:p });
-  btn.disabled = false; btn.textContent = 'INGRESAR';
-  if (!r) { err.textContent = 'Sin conexión. Intenta de nuevo.'; return; }
-  if (!r.ok) { err.textContent = r.error || 'No se pudo ingresar.'; return; }
-  store.set(K_TOKEN, r.token); store.set(K_NAME, r.nombre || '');
-  document.getElementById('p').value = '';
-  showApp(); refresh(true);
+const IS_IOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const IS_STANDALONE = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+function deviceName() {
+  const ua = navigator.userAgent;
+  const t = /iPad/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ? 'iPad' : /iPhone/i.test(ua) ? 'iPhone'
+    : /Android/i.test(ua) ? (/Mobile/i.test(ua) ? 'Android (celular)' : 'Android (tablet)') : 'Computador';
+  return t + (IS_STANDALONE ? ' · app' : ' · navegador');
 }
-function logout() {
-  store.del(K_TOKEN); store.del(K_CACHE); store.del(K_NAME); DATA = null;
+function showLogin() {
   document.getElementById('app').classList.add('hidden');
   document.getElementById('login').classList.remove('hidden');
+  showLoginForm(!(IS_IOS && !IS_STANDALONE));
+}
+function showLoginForm(on) {
+  document.getElementById('ios-gate').classList.toggle('hidden', on);
+  document.getElementById('login-form').classList.toggle('hidden', !on);
+}
+async function doLogin(ev) {
+  ev.preventDefault();
+  const code = document.getElementById('c').value.trim().toUpperCase();
+  const err = document.getElementById('login-err'), btn = document.getElementById('btn-login');
+  err.textContent = ''; btn.disabled = true; btn.textContent = 'ACTIVANDO...';
+  let r;
+  if (DEMO) r = code === 'DEMO' ? { ok:true, token:'demo.1.demo', nombre:'Socio de Prueba' } : { ok:false, error:'Código inválido o ya utilizado.' };
+  else r = await api({ action:'activar', codigo:code, disp:deviceName() });
+  btn.disabled = false; btn.textContent = 'ACTIVAR';
+  if (!r) { err.textContent = 'Sin conexión. Intenta de nuevo (tu código no se gastó).'; return; }
+  if (!r.ok) { err.textContent = r.error || 'No se pudo activar.'; return; }
+  store.set(K_TOKEN, r.token); store.set(K_NAME, r.nombre || '');
+  document.getElementById('c').value = '';
+  showApp(); refresh(true);
+}
+function clearSession() { store.del(K_TOKEN); store.del(K_CACHE); store.del(K_NAME); DATA = null; }
+function logout() {
+  if (!confirm('¿Desconectar este dispositivo?\n\nPara volver a entrar necesitarás un código nuevo de la directiva.')) return;
+  clearSession(); showLogin();
 }
 function showApp() {
   document.getElementById('login').classList.add('hidden');
@@ -253,10 +283,10 @@ function showApp() {
 }
 async function refresh(showMsg) {
   const token = store.get(K_TOKEN);
-  if (!token) return logout();
+  if (!token) return showLogin();
   const r = DEMO ? demoData() : await api({ action:'datos', token });
   if (!r) { if (showMsg) toast('Sin conexión: mostrando lo último guardado'); return; }
-  if (!r.ok) { if (r.error === 'sesion') { logout(); document.getElementById('login-err').textContent = 'Tu sesión expiró o tu clave cambió. Ingresa de nuevo.'; } return; }
+  if (!r.ok) { if (r.error === 'sesion') { clearSession(); showLogin(); document.getElementById('login-err').textContent = 'Este dispositivo fue desconectado (por ejemplo, porque activaste otro). Solicita un código nuevo a la directiva.'; } return; }
   DATA = r; store.set(K_CACHE, JSON.stringify(r));
   document.getElementById('who').textContent = r.yo ? `${r.yo.nombre} · ${r.yo.cargo}` : '';
   render();
@@ -398,7 +428,7 @@ function demoData() {
 // ── Inicio ──
 (function init() {
   if (DEMO) document.getElementById('demo-tag').classList.remove('hidden');
-  if (!store.get(K_TOKEN)) { document.getElementById('login').classList.remove('hidden'); return; }
+  if (!store.get(K_TOKEN)) { showLogin(); return; }
   showApp();
   const c = store.get(K_CACHE);
   if (c) { try { DATA = JSON.parse(c); } catch(e) {} }
