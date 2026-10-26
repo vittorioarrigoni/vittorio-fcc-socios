@@ -372,7 +372,7 @@ function sociosHtml(list) {
   if (!list.length) return '<div class="empty">Sin resultados.</div>';
   return list.map(s => {
     const ini = s.nombre.split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
-    const cargoCls = /presidente/i.test(s.cargo) ? 'gold' : /directiv/i.test(s.cargo) ? 'red' : '';
+    const cargoCls = /presidente/i.test(s.cargo) ? 'gold' : /directiv|director/i.test(s.cargo) ? 'red' : '';
     return `<div class="card so"><div class="av">${s.foto ? `<img loading="lazy" src="${esc(img(s.foto))}" alt="">` : esc(ini)}</div>
       <div style="min-width:0"><div class="n">${esc(s.nombre)}</div>
       <div class="small muted">${s.modelo ? '🐎 ' + esc(s.modelo) : ''}${s.desde ? ' · desde ' + esc(s.desde) : ''}</div>
