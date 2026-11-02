@@ -147,6 +147,10 @@
   .viewer .next { right:8px; top:50%; transform:translateY(-50%); }
   .viewer .cnt { position:absolute; bottom:calc(16px + env(safe-area-inset-bottom)); left:0; right:0; text-align:center; color:#fff; font-size:14px; }
   .btn-fotos { display:inline-block; margin-top:10px; margin-left:6px; padding:9px 14px; border-radius:8px; background:var(--card2); border:1px solid #555; color:#fff; font-weight:600; font-size:14px; text-decoration:none; cursor:pointer; }
+  /* Indicador de actualización */
+  #sync { position:fixed; top:0; left:0; right:0; height:3px; z-index:70; background:linear-gradient(90deg,transparent,var(--red-text),transparent); background-size:50% 100%; background-repeat:no-repeat; animation:sync 1s linear infinite; }
+  @keyframes sync { from { background-position:-50% 0; } to { background-position:150% 0; } }
+  .upd .dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--green); margin-right:6px; vertical-align:middle; }
 </style>
 </head>
 <body>
@@ -204,6 +208,7 @@
   </div>
 </div>
 <div class="toast" id="toast"></div>
+<div id="sync" class="hidden"></div>
 <div class="viewer hidden" id="viewer">
   <img id="v-img" alt="">
   <button class="vb close" onclick="closeViewer()" aria-label="Cerrar">✕</button>
@@ -307,16 +312,21 @@ let lastRefresh = 0, refreshing = false;
 async function refresh(showMsg) {
   if (refreshing) return;
   refreshing = true; lastRefresh = Date.now();
-  try { await doRefresh(showMsg); } finally { refreshing = false; }
+  document.getElementById('sync').classList.remove('hidden');
+  try { await doRefresh(showMsg); } finally { refreshing = false; document.getElementById('sync').classList.add('hidden'); }
 }
 async function doRefresh(showMsg) {
   const token = store.get(K_TOKEN);
   if (!token) return showLogin();
   const r = DEMO ? demoData() : await api({ action:'datos', token });
   if (!r) { if (showMsg) toast('Sin conexión: mostrando lo último guardado'); return; }
-  if (!r.ok) { if (r.error === 'sesion') { clearSession(); showLogin(); document.getElementById('login-err').textContent = 'Este dispositivo fue desconectado (por ejemplo, porque activaste otro). Solicita un código nuevo a la directiva.'; } return; }
+  if (!r.ok) { if (r.error === 'sesion') { clearSession(); showLogin(); document.getElementById('login-err').textContent = 'Este dispositivo fue desconectado (por ejemplo, porque activaste otro). Solicita un código nuevo a la directiva.'; return; }
+    toast('No se pudo actualizar: ' + (r.error || 'error desconocido')); return; }
   (r.galeria || []).forEach(g => { g.fotos = g.fotos || []; });
+  const huella = d => JSON.stringify(Object.assign({}, d, { actualizado: '' }));
+  const cambio = DATA && huella(DATA) !== huella(r);
   DATA = r; store.set(K_CACHE, JSON.stringify(r));
+  if (cambio && showMsg !== true) toast('✓ Hay información nueva');
   document.getElementById('who').textContent = r.yo ? `${r.yo.nombre} · ${r.yo.cargo}` : '';
   render();
   if (showMsg === true && !DEMO) toast('Información actualizada');
@@ -332,7 +342,7 @@ function render() {
   const v = document.getElementById('view');
   if (!DATA) { v.innerHTML = '<div class="empty">⏳ Cargando...</div>'; return; }
   v.innerHTML = ({ inicio:vInicio, eventos:vEventos, convenios:vConvenios, socios:vSocios, galeria:vGaleria }[TAB])() +
-    `<div class="upd">Actualizado ${new Date(DATA.actualizado).toLocaleString('es-CL', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit', hourCycle:'h23' })}${DEMO ? ' · DEMO' : ''}</div>`;
+    `<div class="upd"><span class="dot"></span>Actualizado ${new Date(DATA.actualizado).toLocaleString('es-CL', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit', hourCycle:'h23' })}${DEMO ? ' · DEMO' : ''}</div>`;
 }
 
 function evCard(e) {
