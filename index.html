@@ -148,7 +148,7 @@
   .viewer .cnt { position:absolute; bottom:calc(16px + env(safe-area-inset-bottom)); left:0; right:0; text-align:center; color:#fff; font-size:14px; }
   .btn-fotos { display:inline-block; margin-top:10px; margin-left:6px; padding:9px 14px; border-radius:8px; background:var(--card2); border:1px solid #555; color:#fff; font-weight:600; font-size:14px; text-decoration:none; cursor:pointer; }
   /* Indicador de actualización */
-  #sync { position:fixed; top:0; left:0; right:0; height:3px; z-index:70; background:linear-gradient(90deg,transparent,var(--red-text),transparent); background-size:50% 100%; background-repeat:no-repeat; animation:sync 1s linear infinite; }
+  #sync { position:fixed; top:env(safe-area-inset-top, 0px); left:0; right:0; height:4px; z-index:70; background:linear-gradient(90deg,transparent,var(--red-text),transparent); background-size:50% 100%; background-repeat:no-repeat; animation:sync 1s linear infinite; }
   @keyframes sync { from { background-position:-50% 0; } to { background-position:150% 0; } }
   .upd .dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--green); margin-right:6px; vertical-align:middle; }
 </style>
@@ -205,6 +205,7 @@
     <button id="install-btn" class="hidden" onclick="closeMenu();installApp()">📲 Instalar en la pantalla de inicio</button>
     <button onclick="closeMenu();logout()">📵 Desconectar este dispositivo</button>
     <button onclick="closeMenu()" style="text-align:center;background:none">Cancelar</button>
+    <div class="small muted" style="text-align:center;margin-top:4px">Versión app: <b id="app-ver"></b></div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -225,6 +226,7 @@
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbNEY3YCT0Sy6mPbq6FnT2WzFEHzQ4UZ9LjShVjIV5phskwN5w6tfxeSB_Viu2B1p1LA/exec';
 
 const DEMO = !SCRIPT_URL;
+const APP_VERSION = '2026-11-01c';
 const K_TOKEN = 'fccs_token', K_CACHE = 'fccs_cache', K_NAME = 'fccs_name';
 const store = {
   get(k) { try { return localStorage.getItem(k); } catch(e) { return null; } },
@@ -313,7 +315,11 @@ async function refresh(showMsg) {
   if (refreshing) return;
   refreshing = true; lastRefresh = Date.now();
   document.getElementById('sync').classList.remove('hidden');
-  try { await doRefresh(showMsg); } finally { refreshing = false; document.getElementById('sync').classList.add('hidden'); }
+  const u = document.querySelector('.upd'); if (u) u.innerHTML = '⏳ Actualizando…';
+  try { await doRefresh(showMsg); } finally {
+    refreshing = false; document.getElementById('sync').classList.add('hidden');
+    if (DATA) render();
+  }
 }
 async function doRefresh(showMsg) {
   const token = store.get(K_TOKEN);
@@ -529,6 +535,7 @@ function demoData() {
 
 // ── Inicio ──
 (function init() {
+  document.getElementById('app-ver').textContent = APP_VERSION;
   if (DEMO) document.getElementById('demo-tag').classList.remove('hidden');
   if (!store.get(K_TOKEN)) { showLogin(); return; }
   showApp();
